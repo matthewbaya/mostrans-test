@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { gql, useApolloClient } from "@apollo/client";
 import CharacterCard from "./components/character-card";
+import Loader from "./components/loader";
+import Navbar from "./components/navbar";
 
 const GET_CHARACTERS = gql`
   query GetCharacters($page: Int!) {
@@ -13,6 +15,7 @@ const GET_CHARACTERS = gql`
       info {
         next
         prev
+        pages
       }
     }
   }
@@ -22,7 +25,11 @@ function App() {
   const client = useApolloClient();
   const [characters, setCharacters] = useState([]);
   const [page, setPage] = useState(1);
-  const [pageInfo, setPageInfo] = useState({ next: null, prev: null });
+  const [pageInfo, setPageInfo] = useState({
+    next: null,
+    prev: null,
+    pages: 0,
+  });
   const [loading, setLoading] = useState(false); // New state for loading
 
   useEffect(() => {
@@ -53,29 +60,69 @@ function App() {
     }
   };
 
+  const handlePageClick = (pageNumber) => {
+    setPage(pageNumber);
+  };
+
+  const renderPageDropdown = () => {
+    return (
+      <select
+        className="form-select form-select-lg"
+        value={page}
+        onChange={(e) => handlePageClick(Number(e.target.value))}
+        disabled={loading}
+      >
+        {Array.from({ length: pageInfo.pages }, (_, i) => (
+          <option key={i + 1} value={i + 1}>
+            {i + 1}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
   return (
-    <div className="container">
-      <h1 className="display-4 text-center">Rick and Morty Character List</h1>
+    <>
+      <Navbar></Navbar>
+      <div className="container mb-3">
+        <h1 className="display-1 text-center fw-semibold">
+          Rick and Morty Character List
+        </h1>
 
-      {loading ? ( // Display loading text when loading
-        <p className="text-center">Loading...</p>
-      ) : (
-        <div className="row justify-content-center gap-3">
-          {characters.map((character, index) => (
-            <CharacterCard key={index} character={character}></CharacterCard>
-          ))}
+        {loading ? ( // Display loading text when loading
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "100vh" }}
+          >
+            <Loader></Loader>
+          </div>
+        ) : (
+          <div className="row justify-content-center gap-3">
+            {characters.map((character, index) => (
+              <CharacterCard key={index} character={character}></CharacterCard>
+            ))}
+          </div>
+        )}
+
+        <div className="pagination-controls d-flex justify-content-around mt-3">
+          <button
+            className="btn btn-primary"
+            onClick={handlePrevPage}
+            disabled={!pageInfo.prev || loading}
+          >
+            Previous
+          </button>
+          <div className="col-md-2">{renderPageDropdown()}</div>
+          <button
+            className="btn btn-primary"
+            onClick={handleNextPage}
+            disabled={!pageInfo.next || loading}
+          >
+            Next
+          </button>
         </div>
-      )}
-
-      <div className="pagination-controls">
-        <button onClick={handlePrevPage} disabled={!pageInfo.prev || loading}>
-          Previous
-        </button>
-        <button onClick={handleNextPage} disabled={!pageInfo.next || loading}>
-          Next
-        </button>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -4,8 +4,10 @@ import App from "./App.jsx";
 // import "./index.css";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import CharacterDetailPage from "./pages/character-detail-page.jsx";
+import CharacterByLocation from "./pages/location-page.jsx";
 
 const client = new ApolloClient({
   uri: "https://rickandmortyapi.com/graphql",
@@ -20,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: "/character/:id",
     element: <CharacterDetailPage />,
+  },
+  {
+    path: "/location",
+    element: <CharacterByLocation />,
   },
 ]);
 
