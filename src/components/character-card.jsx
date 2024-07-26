@@ -8,7 +8,7 @@ export default function CharacterCard({ character }) {
   };
   return (
     <div
-      className="bg-image hover-overlay ripple col-3 "
+      className="bg-image col-3 "
       style={{ cursor: "pointer" }}
       onClick={handleNavigate}
     >
